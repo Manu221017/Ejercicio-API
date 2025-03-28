@@ -1,0 +1,104 @@
+openapi: 3.0.0
+info:
+  title: API de Gestión de Incidentes
+  version: 1.0.0
+  description: |-
+    Sistema completo para gestión de tickets de soporte técnico.
+    ### Flujo de trabajo
+    1. Crear incidente
+    2. Asignar prioridad
+    3. Seguir estado
+    4. Resolver y cerrar
+  contact:
+    name: Soporte API
+    email: soporte@empresa.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Servidor de desarrollo
+  - url: https://api.empresa.com/v1
+    description: Servidor de producción
+
+paths:
+  /incidents:
+    get:
+      tags: [Incidents]
+      summary: Obtener todos los incidentes
+      parameters:
+        - $ref: '#/components/parameters/status'
+        - $ref: '#/components/parameters/priority'
+        - $ref: '#/components/parameters/equipmentType'
+        - $ref: '#/components/parameters/dateFrom'
+        - $ref: '#/components/parameters/dateTo'
+      responses:
+        200:
+          description: Lista de incidentes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Incident'
+    post:
+      tags: [Incidents]
+      summary: Crear nuevo incidente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewIncident'
+      responses:
+        201:
+          description: Incidente creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+        400:
+          $ref: '#/components/responses/BadRequest'
+
+components:
+  schemas:
+    Incident:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        reporter:
+          type: string
+          example: "Juan Pérez"
+        equipment_type:
+          type: string
+          enum: [Laptop, Desktop, Impresora, Red, Teléfono, Otro]
+        description:
+          type: string
+        priority:
+          type: string
+          enum: [baja, media, alta]
+          default: media
+        status:
+          type: string
+          enum: [pendiente, en proceso, resuelto, cerrado]
+          default: pendiente
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        resolved_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - id
+        - reporter
+        - equipment_type
+        - description
+        - status
+        - created_at

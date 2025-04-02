@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Gestión de Incidentes</title>
+    </head>
+    <body>
+        <h1>Reportar un Incidente</h1>
+        <form id="incidentForm">
+            <label>Reportero:</label>
+            <input type="text" id="reporter" required>
+            <br>
+            <label>Descripción:</label>
+            <input type="text" id="description" required>
+            <br>
+            <button type="submit">Enviar</button>
+        </form>
+        
+        <h2>Lista de Incidentes</h2>
+        <ul id="incidentList"></ul>
+        
+        <script>
+            document.getElementById('incidentForm').addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const reporter = document.getElementById('reporter').value;
+                const description = document.getElementById('description').value;
+                
+                const response = await fetch('/incidents', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reporter, description })
+                });
+                
+                if (response.ok) {
+                    loadIncidents();
+                    alert('Incidente reportado con éxito');
+                } else {
+                    alert('Error al reportar el incidente');
+                }
+            });
+            
+            async function loadIncidents() {
+                const response = await fetch('/incidents');
+                const incidents = await response.json();
+                const list = document.getElementById('incidentList');
+                list.innerHTML = '';
+                incidents.forEach(incident => {
+                    const li = document.createElement('li');
+                    li.textContent = `${incident.reporter}: ${incident.description} (${incident.status})`;
+                    list.appendChild(li);
+                });
+            }
+            
+            loadIncidents();
+        </script>
+    </body>
+    </html>
